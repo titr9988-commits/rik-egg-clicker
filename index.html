@@ -6,31 +6,119 @@
     <title>RIK EGG</title>
     <script src="https://cdn.jsdelivr.net/npm/@telegram-apps/sdk@1"></script>
     <style>
-        body {margin:0;background:#000;color:#ffd700;font-family:sans-serif;text-align:center;overflow:hidden}
-        #egg {width:280px;height:280px;margin:20vh auto 10px;cursor:pointer;user-select:none;transition:.1s}
-        #counter {font-size:52px;font-weight:bold;margin:20px}
-        button {background:#ffd700;color:#000;border:none;padding:16px 32px;margin:10px;border-radius:50px;font-size:20px;font-weight:bold}
+        body{margin:0;background:#000;color:#ffd700;font-family:sans-serif;text-align:center;overflow:hidden}
+        #egg{width:280px;height:280px;margin:20vh auto 10px;cursor:pointer;user-select:none;transition:.1s}
+        #counter{font-size:52px;font-weight:bold;margin:20px}
+        button{background:#ffd700;color:#000;border:none;padding:16px 32px;margin:10px;border-radius:50px;font-size:20px;font-weight:bold;cursor:pointer}
+        #shop{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.95);padding:20px;display:none;z-index:999}
+        .upgrade{background:#333;color:#ffd700;padding:15px;margin:10px;border-radius:10px}
+        .cost{color:#fff;font-size:14px}
     </style>
 </head>
 <body>
-    <div id="counter">0 Egg</div>
-    <img id="egg" src="https://private-user-images.githubusercontent.com/245435151/517541026-c9219822-2ee1-4120-b338-b491dc265dac.jpg?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM3NTE4ODgsIm5iZiI6MTc2Mzc1MTU4OCwicGF0aCI6Ii8yNDU0MzUxNTEvNTE3NTQxMDI2LWM5MjE5ODIyLTJlZTEtNDEyMC1iMzM4LWI0OTFkYzI2NWRhYy5qcGc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjUxMTIxJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI1MTEyMVQxODU5NDhaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT00OGNhNGQyZTQ2ZjNjODNmN2UzNTJjNmIzZTQxMGJjZjFhY2Y0ZDVmYzZlYTZiNTZkOTFiYzI3NWIwNjcyZGUzJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.HWIi9-jzaAok5jFTjmaax60C_7p4Bf4B91OeoZhJqVc" onclick="clickEgg()">
+    <div id="counter">0 Coins</div>
+    <img id="egg" src="egg.png" onclick="clickEgg()">
     <br>
-    <button onclick="alert('Shop coming soon!')">Shop</button>
-    <button onclick="alert('Invite friends & get bonus!')">Invite Friend</button>
+    <button onclick="openShop()">Shop</button>
+    <button onclick="invite()">Invite Friend</button>
+
+    <div id="shop">
+        <h2>UPGRADES</h2>
+        <div class="upgrade">
+            Auto Clicker <span class="cost">Cost: <span id="autoCost">50</span> Coins</span><br>
+            Level: <span id="autoLvl">0</span> → +5 Coins/sec
+            <button onclick="buyAuto()">Buy</button>
+        </div>
+        <div class="upgrade">
+            Click Power x2 <span class="cost">Cost: <span id="powerCost">100</span> Coins</span><br>
+            Level: <span id="powerLvl">1</span>
+            <button onclick="buyPower()">Buy</button>
+        </div>
+        <button onclick="closeShop()" style="background:#ff4444">Close Shop</button>
+    </div>
 
     <script>
-        let coins = Number(localStorage.getItem('rikEggCoins') || 0);
-        document.getElementById('counter').innerText = coins.toLocaleString() + ' Egg';
+        let coins = Number(localStorage.getItem('rikCoins') || 0);
+        let clicks = Number(localStorage.getItem('rikClicks') || 0);
+        let autoLevel = Number(localStorage.getItem('autoLevel') || 0);
+        let powerLevel = Number(localStorage.getItem('powerLevel') || 1);
+
+        updateCounter();
 
         function clickEgg() {
-            coins++;
-            localStorage.setItem('rikEggCoins', coins);
-            document.getElementById('counter').innerText = coins.toLocaleString() + ' Egg';
+            clicks++;
+            coins += powerLevel;
+            localStorage.setItem('rikClicks', clicks);
+            localStorage.setItem('rikCoins', coins);
+            updateCounter();
+
+            // כל 40 קליקים – פרסומת + ×10 בונוס
+            if (clicks % 40 === 0) {
+                alert("WATCH AD TO GET x10 BONUS!");
+                coins *= 10;
+                localStorage.setItem('rikCoins', coins);
+                updateCounter();
+            }
+
             const e = document.getElementById('egg');
             e.style.transform = 'scale(0.9)';
-            setTimeout(()=> e.style.transform = '', 100);
+            setTimeout(() => e.style.transform = '', 100);
         }
+
+        function updateCounter() {
+            document.getElementById('counter').innerText = coins.toLocaleString() + ' Coins';
+            document.getElementById('autoLvl').innerText = autoLevel;
+            document.getElementById('powerLvl').innerText = powerLevel;
+            document.getElementById('autoCost').innerText = 50 * (autoLevel + 1);
+            document.getElementById('powerCost').innerText = 100 * powerLevel;
+        }
+
+        function openShop() { document.getElementById('shop').style.display = 'block'; }
+        function closeShop() { document.getElementById('shop').style.display = 'none'; }
+
+        function buyAuto() {
+            let cost = 50 * (autoLevel + 1);
+            if (coins >= cost) {
+                coins -= cost;
+                autoLevel++;
+                localStorage.setItem('rikCoins', coins);
+                localStorage.setItem('autoLevel', autoLevel);
+                updateCounter();
+                startAuto();
+            } else alert("Not enough Coins!");
+        }
+
+        function buyPower() {
+            let cost = 100 * powerLevel;
+            if (coins >= cost) {
+                coins -= cost;
+                powerLevel *= 2;
+                localStorage.setItem('rikCoins', coins);
+                localStorage.setItem('powerLevel', powerLevel);
+                updateCounter();
+            } else alert("Not enough Coins!");
+        }
+
+        function invite() {
+            alert("Share this link and get +500 Coins when friend joins!\nhttps://t.me/rik_egg_bot");
+            coins += 500;
+            localStorage.setItem('rikCoins', coins);
+            updateCounter();
+        }
+
+        function startAuto() {
+            clearInterval(window.autoInt);
+            if (autoLevel > 0) {
+                window.autoInt = setInterval(() => {
+                    coins += autoLevel * 5;
+                    localStorage.setItem('rikCoins', coins);
+                    updateCounter();
+                }, 1000);
+            }
+        }
+
+        // הפעל אוטו אם יש רמה
+        if (autoLevel > 0) startAuto();
     </script>
 </body>
 </html>
