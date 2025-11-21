@@ -10,19 +10,19 @@
         #egg{width:280px;height:280px;margin:15vh auto 10px;cursor:pointer;user-select:none;transition:.1s}
         #counter{font-size:52px;font-weight:bold;margin:20px}
         button{background:#ffd700;color:#000;border:none;padding:16px 32px;margin:8px;border-radius:50px;font-size:20px;font-weight:bold;cursor:pointer}
-        #adButton{background:#ff0000;color:#fff;padding:20px 40px;font-size:24px;display:none;position:fixed;bottom:30px;left:50%;transform:translateX:-50%;z-index:999;border:3px solid #fff;box-shadow:0 0 20px #ff0}
+        #adButton{background:#ff0000;color:#fff;padding:20px 40px;font-size:24px;display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:999;border:3px solid #fff;box-shadow:0 0 20px #ff0}
         #shop{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.95);padding:20px;display:none;z-index:998}
         .upgrade{background:#333;color:#ffd700;padding:15px;margin:10px;border-radius:10px}
     </style>
 </head>
 <body>
     <div id="counter">0 Coins</div>
-    <img id="egg" src="egg png" onclick="clickEgg()">
-    
+    <img id="egg" src="egg.png" onclick="clickEgg()">
+   
     <button onclick="openShop()">Shop</button>
     <button onclick="invite()">Invite Friend</button>
 
-    <!-- כפתור הפרסומת שמופיע רק אחרי 40 קליקים -->
+    <!-- כפתור פרסומת אחרי 40 קליקים -->
     <button id="adButton" onclick="watchAd()">
         WATCH AD → ×10 COINS!
     </button>
@@ -36,10 +36,9 @@
 
     <script>
         let coins = Number(localStorage.getItem('rikCoins') || 0);
-        let clicks = Number(localStorage.getItem('rikClicks') ||  || 0);
+        let clicks = Number(localStorage.getItem('rikClicks') || 0);
         let autoLevel = Number(localStorage.getItem('autoLevel') || 0);
         let powerLevel = Number(localStorage.getItem('powerLevel') || 1);
-
         updateCounter();
 
         function clickEgg() {
@@ -49,25 +48,22 @@
             localStorage.setItem('rikCoins', coins);
             updateCounter();
 
-            // אחרי 40 קליקים – מציג את כפתור הפרסומת
             if (clicks % 40 === 0) {
                 document.getElementById('adButton').style.display = 'block';
             }
 
-            // אנימציית לחיצה
             const e = document.getElementById('egg');
             e.style.transform = 'scale(0.9)';
             setTimeout(() => e.style.transform = '', 100);
         }
 
         function watchAd() {
-            // כאן אפשר להוסיף פרסומת אמיתית בעתיד
             alert("Ad watched! You got ×10 bonus!");
             coins *= 10;
             localStorage.setItem('rikCoins', coins);
             updateCounter();
-            document.getElementById('adButton').style.display = 'none'; // מסתיר את הכפתור אחרי הצפייה
-            clicks = 0; // מאפס את המונה ל-40 הקליקים הבאים
+            document.getElementById('adButton').style.display = 'none';
+            clicks = 0;
             localStorage.setItem('rikClicks', clicks);
         }
 
