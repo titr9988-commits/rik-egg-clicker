@@ -7,39 +7,36 @@
     <script src="https://cdn.jsdelivr.net/npm/@telegram-apps/sdk@1"></script>
     <style>
         body{margin:0;background:#000;color:#ffd700;font-family:sans-serif;text-align:center;overflow:hidden}
-        #egg{width:280px;height:280px;margin:20vh auto 10px;cursor:pointer;user-select:none;transition:.1s}
+        #egg{width:280px;height:280px;margin:15vh auto 10px;cursor:pointer;user-select:none;transition:.1s}
         #counter{font-size:52px;font-weight:bold;margin:20px}
-        button{background:#ffd700;color:#000;border:none;padding:16px 32px;margin:10px;border-radius:50px;font-size:20px;font-weight:bold;cursor:pointer}
-        #shop{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.95);padding:20px;display:none;z-index:999}
+        button{background:#ffd700;color:#000;border:none;padding:16px 32px;margin:8px;border-radius:50px;font-size:20px;font-weight:bold;cursor:pointer}
+        #adButton{background:#ff0000;color:#fff;padding:20px 40px;font-size:24px;display:none;position:fixed;bottom:30px;left:50%;transform:translateX:-50%;z-index:999;border:3px solid #fff;box-shadow:0 0 20px #ff0}
+        #shop{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.95);padding:20px;display:none;z-index:998}
         .upgrade{background:#333;color:#ffd700;padding:15px;margin:10px;border-radius:10px}
-        .cost{color:#fff;font-size:14px}
     </style>
 </head>
 <body>
     <div id="counter">0 Coins</div>
     <img id="egg" src="egg.png" onclick="clickEgg()">
-    <br>
+    
     <button onclick="openShop()">Shop</button>
     <button onclick="invite()">Invite Friend</button>
 
+    <!-- כפתור הפרסומת שמופיע רק אחרי 40 קליקים -->
+    <button id="adButton" onclick="watchAd()">
+        WATCH AD → ×10 COINS!
+    </button>
+
     <div id="shop">
         <h2>UPGRADES</h2>
-        <div class="upgrade">
-            Auto Clicker <span class="cost">Cost: <span id="autoCost">50</span> Coins</span><br>
-            Level: <span id="autoLvl">0</span> → +5 Coins/sec
-            <button onclick="buyAuto()">Buy</button>
-        </div>
-        <div class="upgrade">
-            Click Power x2 <span class="cost">Cost: <span id="powerCost">100</span> Coins</span><br>
-            Level: <span id="powerLvl">1</span>
-            <button onclick="buyPower()">Buy</button>
-        </div>
-        <button onclick="closeShop()" style="background:#ff4444">Close Shop</button>
+        <div class="upgrade">Auto Clicker – Cost <span id="autoCost">50</span> Coins<br>Level <span id="autoLvl">0</span><button onclick="buyAuto()">Buy</button></div>
+        <div class="upgrade">Click Power ×2 – Cost <span id="powerCost">100</span> Coins<br>Level <span id="powerLvl">1</span><button onclick="buyPower()">Buy</button></div>
+        <button onclick="closeShop()" style="background:#ff4444">Close</button>
     </div>
 
     <script>
         let coins = Number(localStorage.getItem('rikCoins') || 0);
-        let clicks = Number(localStorage.getItem('rikClicks') || 0);
+        let clicks = Number(localStorage.getItem('rikClicks') ||  || 0);
         let autoLevel = Number(localStorage.getItem('autoLevel') || 0);
         let powerLevel = Number(localStorage.getItem('powerLevel') || 1);
 
@@ -52,17 +49,26 @@
             localStorage.setItem('rikCoins', coins);
             updateCounter();
 
-            // כל 40 קליקים – פרסומת + ×10 בונוס
+            // אחרי 40 קליקים – מציג את כפתור הפרסומת
             if (clicks % 40 === 0) {
-                alert("WATCH AD TO GET x10 BONUS!");
-                coins *= 10;
-                localStorage.setItem('rikCoins', coins);
-                updateCounter();
+                document.getElementById('adButton').style.display = 'block';
             }
 
+            // אנימציית לחיצה
             const e = document.getElementById('egg');
             e.style.transform = 'scale(0.9)';
             setTimeout(() => e.style.transform = '', 100);
+        }
+
+        function watchAd() {
+            // כאן אפשר להוסיף פרסומת אמיתית בעתיד
+            alert("Ad watched! You got ×10 bonus!");
+            coins *= 10;
+            localStorage.setItem('rikCoins', coins);
+            updateCounter();
+            document.getElementById('adButton').style.display = 'none'; // מסתיר את הכפתור אחרי הצפייה
+            clicks = 0; // מאפס את המונה ל-40 הקליקים הבאים
+            localStorage.setItem('rikClicks', clicks);
         }
 
         function updateCounter() {
@@ -78,29 +84,18 @@
 
         function buyAuto() {
             let cost = 50 * (autoLevel + 1);
-            if (coins >= cost) {
-                coins -= cost;
-                autoLevel++;
-                localStorage.setItem('rikCoins', coins);
-                localStorage.setItem('autoLevel', autoLevel);
-                updateCounter();
-                startAuto();
-            } else alert("Not enough Coins!");
+            if (coins >= cost) { coins -= cost; autoLevel++; localStorage.setItem('rikCoins', coins); localStorage.setItem('autoLevel', autoLevel); updateCounter(); startAuto(); }
+            else alert("Not enough Coins!");
         }
 
         function buyPower() {
             let cost = 100 * powerLevel;
-            if (coins >= cost) {
-                coins -= cost;
-                powerLevel *= 2;
-                localStorage.setItem('rikCoins', coins);
-                localStorage.setItem('powerLevel', powerLevel);
-                updateCounter();
-            } else alert("Not enough Coins!");
+            if (coins >= cost) { coins -= cost; powerLevel *= 2; localStorage.setItem('rikCoins', coins); localStorage.setItem('powerLevel', powerLevel); updateCounter(); }
+            else alert("Not enough Coins!");
         }
 
         function invite() {
-            alert("Share this link and get +500 Coins when friend joins!\nhttps://t.me/rik_egg_bot");
+            alert("Share & get 500 Coins!\nhttps://t.me/rik_egg_bot");
             coins += 500;
             localStorage.setItem('rikCoins', coins);
             updateCounter();
@@ -117,7 +112,6 @@
             }
         }
 
-        // הפעל אוטו אם יש רמה
         if (autoLevel > 0) startAuto();
     </script>
 </body>
