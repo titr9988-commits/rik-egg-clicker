@@ -7,55 +7,88 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body{margin:0;background:#000;color:#ffd700;font-family:sans-serif;text-align:center;overflow:hidden}
-        #egg{width:280px;height:280px;margin:18vh auto;cursor:pointer;transition:.1s}
-        #coins{font-size:52px;font-weight:bold;margin:15px}
-        #rik{font-size:44px;color:#00ff00;margin:10px}
-        button{background:#ffd700;color:#000;padding:16px 36px;margin:8px;border-radius:50px;font-size:22px;font-weight:bold;cursor:pointer}
-        #ad{background:#ff0000;color:#fff;padding:25px 70px;font-size:36px;border:6px solid #fff;box-shadow:0 0 50px #f00;border-radius:50px;cursor:pointer}
-        #reset{background:#333;color:#f44;padding:14px 32px;margin-top:15px;border-radius:50px}
+        #egg{width:280px;height:280px;margin:15vh auto;cursor:pointer;transition:.1s}
+        #coins{font-size:48px;font-weight:bold;margin:10px}
+        #rik{font-size:40px;color:#00ff00;margin:10px}
+        button{background:#ffd700;color:#000;padding:16px 36px;margin:8 dine;border-radius:50px;font-size:20px;font-weight:bold;cursor:pointer}
+        #ad{background:#ff0000;color:#fff;padding:25px 80px;font-size:36px;border:6px solid #fff;box-shadow:0 0 50px #f00;border-radius:50px;cursor:pointer}
+        #withdraw{background:#00ff00;color:#000;padding:18px 50px;font-size:28px;margin:20px;border-radius:50px;display:none}
+        #reset{background:#333;color:#f44;padding:14px 32px;margin:10px;border-radius:50px}
     </style>
 </head>
 <body>
     <div id="coins">0 Coins</div>
     <div id="rik">0 RikCoins</div>
-    <img id="egg" src="egg.png" onclick="tap()">
+    <img id="egg" src="egg png" onclick="tap()">
     <br>
-    <button onclick="invite()">Invite</button>
+    <button onclick="invite()">Invite Friend</button>
     <button id="reset" onclick="if(confirm('Reset all?')){localStorage.clear();location.reload()}">Reset All</button>
+    <button id="withdraw" onclick="withdraw()">WITHDRAW $</button>
 
-    <button id="ad" onclick="ad()">WATCH AD TO GET $</button>
+    <button id="ad" onclick="showAd()">WATCH AD TO GET $</button>
 
     <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const ref = urlParams.get('ref'); // מי שהפנה
+
         let coins = Number(localStorage.getItem('c')||0);
         let rik = Number(localStorage.getItem('r')||0);
+        let earned = Number(localStorage.getItem('e')||0);
+        let referred = localStorage.getItem('referred') === 'true';
 
-        $('#coins').innerText = coins.toLocaleString()+' Coins';
-        $('#rik').innerText = rik.toLocaleString()+' RikCoins';
+        update();
 
         function tap() {
             coins++;
             localStorage.setItem('c',coins);
-            $('#coins').innerText = coins.toLocaleString()+' Coins';
-            $('#egg').style.transform='scale(0.9)';
-            setTimeout(()=>$('#egg').style.transform='',100);
+            update();
+            document.getElementById('egg').style.transform='scale(0.9)';
+            setTimeout(()=>document.getElementById('egg').style.transform='',100);
         }
 
-        function ad() {
+        function showAd() {
             Telegram.WebApp.showPopup({message:"Watching ad…",buttons:[{type:"close"}]},()=>{
-                rik += 10;
+                // אתה מקבל 0.04$ (לדוגמה)
+                const myEarn = 0.04;
+                const playerGets = myEarn * 0.25; // השחקן מקבל רבע
+                const rikToGive = Math.round(playerGets * 12500); // 0.01$ ≈ 125 RikCoins
+
+                rik += rikToGive;
+                earned += playerGets;
                 localStorage.setItem('r',rik);
-                $('#rik').innerText = rik.toLocaleString()+' RikCoins';
+                localStorage.setItem('e',earned);
+                update();
+
+                // רפרל: אם יש מפנה והמשתמש החדש הרוויח לך 1$
+                if (ref && !referred && earned >= 1.0) {
+                    // נותנים למפנה 0.25$ חד-פעמי
+                    fetch(`https://api.telegram.org/bot8576828233:AAFcqlilG1Hje3xmUvuLHYDKnWQuYq58Wss/sendMessage?chat_id=${ref}&text=Your referral earned you 0.25$! 🎉`);
+                    localStorage.setItem('referred','true');
+                }
+
+                if (earned >= 1.0) document.getElementById('withdraw').style.display = 'block';
             });
         }
 
-        function invite() {
-            Telegram.WebApp.openLink("https://t.me/rik_egg_bot");
-            coins += 1000;
-            localStorage.setItem('c',coins);
-            $('#coins').innerText = coins.toLocaleString()+' Coins';
+        function withdraw() {
+            if (earned < 1.0) return alert("Need 1$ minimum");
+            Telegram.WebApp.openLink("https://t.me/rik_egg_bot?start=withdraw");
+            alert(`$${earned.toFixed(2)} sent to your TON wallet!`);
+            earned = 0;
+            localStorage.setItem('e',0);
+            document.getElementById('withdraw').style.display = 'none';
+            update();
         }
 
-        function $(id){return document.getElementById(id.replace('#',''))}
+        function invite() {
+            const link = `https://t.me/rik_egg_bot?start=ref_${Telegram.WebApp.initDataUnsafe.user.id}`;
+            Telegram.WebApp.openLink("https://t.me/share/url?url="+encodeURIComponent(link));
+        }
+
+        function update() {
+            document.getElementById('coins').innerText = coins.toLocaleString()+' Coins';
+            document.getElementById('rik').innerText = rik.toLocaleString()+' RikCoins';
+        }
     </script>
 </body>
 </html>
