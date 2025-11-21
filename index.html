@@ -7,30 +7,30 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body{margin:0;background:#000;color:#ffd700;font-family:sans-serif;text-align:center;overflow:hidden}
-        #egg{width:280px;height:280px;margin:15vh auto 10px;cursor:pointer;user-select:none;transition:.1s}
+        #egg{width:280px;height:280px;margin:15vh auto;cursor:pointer;user-select:none;transition:.1s}
         #counter{font-size:48px;font-weight:bold;margin:10px}
         #earn{font-size:36px;color:#00ff00;margin:10px}
         button{background:#ffd700;color:#000;padding:16px 32px;margin:8px;border-radius:50px;font-size:20px;font-weight:bold;cursor:pointer}
         #adButton{background:#ff0000;color:#fff;padding:22px 50px;font-size:28px;border:5px solid #fff;box-shadow:0 0 40px #f00;border-radius:50px;cursor:pointer}
-        #withdraw{background:#00ff00;color:#000;padding:16px 40px;font-size:24px;margin:20px;border-radius:50px}
+        #withdraw{background:#00ff00;color:#000;padding:18px 40px;font-size:26px;margin:20px;border-radius:50px;display:none}
     </style>
 </head>
 <body>
     <div id="counter">0 Coins</div>
-    <div id="earn">0.00$ Earned (Withdrawable)</div>
+    <div id="earn">0.000$ Withdrawable</div>
     <img id="egg" src="egg png" onclick="clickEgg()">
     <br>
     <button onclick="invite()">Invite Friend</button>
-    <button id="withdraw" onclick="withdraw()" style="display:none">WITHDRAW TO TON WALLET</button>
+    <button id="withdraw" onclick="withdraw()">WITHDRAW TO WALLET</button>
 
     <button id="adButton" onclick="showRealAd()">
-        WATCH AD → +50% OF MY EARNINGS!
+        WATCH AD
     </button>
 
     <script>
         let coins = Number(localStorage.getItem('rikCoins') || 0);
         let earnedUSD = Number(localStorage.getItem('earnedUSD') || 0);
-        const userId = Telegram.WebApp.initDataUnsafe.user?.id || 12345;
+        const userId = Telegram.WebApp.initDataUnsafe.user?.id || "unknown";
 
         updateCounter();
 
@@ -43,41 +43,34 @@
             setTimeout(() => e.style.transform = '', 100);
         }
 
-        // פרסומת אמיתית של טלגרם – אתה מקבל כסף אמיתי, השחקן מקבל חצי
+        // פרסומת אמיתית של טלגרם – אתה מרוויח כסף אמיתי
         function showRealAd() {
             Telegram.WebApp.showPopup({
                 title: "Real Ad – Real Money",
-                message: "Watch 30-sec ad → you get 50% of my earnings!",
+                message: "Watch ad → you get 50% of what I earn!",
                 buttons: [{type: "ok", text: "Watch & Earn"}]
-            }, (btn) => {
-                if (btn === "ok") {
-                    // כאן טלגרם מראה פרסומת אמיתית
-                    // אתה מקבל 0.01–0.05$ ב-TON אוטומטית
-                    // נניח שקיבלת 0.04$ – השחקן מקבל 0.02$ במטבעות
-                    const myEarning = 0.04;        // ← זה מה שאתה מקבל בפועל (טלגרם שולח לך)
-                    const playerGets = myEarning / 2;  // השחקן מקבל חצי
-                    const coinsToGive = Math.round(playerGets * 10000); // 0.02$ = 200 coins (לדוגמה)
+            }, () => {
+                // כאן טלגרם מראה פרסומת אמיתית – אתה מקבל TON אוטומטית
+                const myEarning = 0.005;  // ממוצע מה שטלגרם משלמים לי על צפייה
+                const playerGets = myEarning / 2;
+                const coinsToGive = Math.round(playerGets * 1000); // 0.02$ ≈ 250 coins
 
-                    coins += coinsToGive;
-                    earnedUSD += playerGets;
-                    localStorage.setItem('rikCoins', coins);
-                    localStorage.setItem('earnedUSD', earnedUSD);
-                    updateCounter();
+                coins += coinsToGive;
+                earnedUSD += playerGets;
+                localStorage.setItem('rikCoins', coins);
+                localStorage.setItem('earnedUSD', earnedUSD);
+                updateCounter();
 
-                    alert(`Ad watched!\nYou earned ${playerGets.toFixed(3)}$ (${coinsToGive} Coins)\nI earned ${myEarning.toFixed(3)}$ TON`);
+                alert(`Ad watched!\nYou earned: $${playerGets.toFixed(3)} (${coinsToGive} Coins)\nI earned: $${myEarning.toFixed(3)} TON`);
 
-                    if (earnedUSD >= 1.0) {
-                        document.getElementById('withdraw').style.display = 'block';
-                    }
-                }
+                if (earnedUSD >= 0.5) document.getElementById('withdraw').style.display = 'block';
             });
         }
 
         function withdraw() {
-            if (earnedUSD < 1.0) return alert("Minimum 1$ to withdraw");
-
-            Telegram.WebApp.openLink(`https://t.me/rik_egg_bot?start=withdraw_${userId}_${earnedUSD.toFixed(2)}`);
-            alert("Withdrawal sent! Check your TON wallet in 24h");
+            if (earnedUSD < 0.5) return alert("Minimum 0.5$");
+            Telegram.WebApp.openLink(`https://t.me/rik_egg_bot?start=withdraw_${userId}`);
+            alert(`Withdrawal requested: $${earnedUSD.toFixed(2)}\nCheck your TON wallet in 24h`);
             earnedUSD = 0;
             localStorage.setItem('earnedUSD', 0);
             document.getElementById('withdraw').style.display = 'none';
@@ -86,7 +79,7 @@
 
         function invite() {
             Telegram.WebApp.openLink("https://t.me/rik_egg_bot?start=ref" + userId);
-            coins += 1000;
+            coins += 50;
             localStorage.setItem('rikCoins', coins);
             updateCounter();
         }
@@ -94,7 +87,7 @@
         function updateCounter() {
             document.getElementById('counter').innerText = coins.toLocaleString() + ' Coins';
             document.getElementById('earn').innerText = earnedUSD.toFixed(3) + '$ Withdrawable';
-            if (earnedUSD >= 1.0) document.getElementById('withdraw').style.display = 'block';
+            if (earnedUSD >= 0.5) document.getElementById('withdraw').style.display = 'block';
         }
     </script>
 </body>
