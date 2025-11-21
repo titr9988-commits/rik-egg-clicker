@@ -17,7 +17,7 @@
 </head>
 <body>
     <div id="counter">0 Coins</div>
-    <div id="earn">0.000$ Withdrawable</div>
+    <div id="earn">0.00$ Withdrawable</div>
     <img id="egg" src="egg png" onclick="clickEgg()">
     <br>
     <button onclick="invite()">Invite Friend</button>
@@ -47,13 +47,13 @@
         function showRealAd() {
             Telegram.WebApp.showPopup({
                 title: "Real Ad – Real Money",
-                message: "Watch ad → you get 50% of what I earn!",
+                message: "Watch ad",
                 buttons: [{type: "ok", text: "Watch & Earn"}]
             }, () => {
                 // כאן טלגרם מראה פרסומת אמיתית – אתה מקבל TON אוטומטית
-                const myEarning = 0.005;  // ממוצע מה שטלגרם משלמים לי על צפייה
-                const playerGets = myEarning / 2;
-                const coinsToGive = Math.round(playerGets * 1000); // 0.02$ ≈ 250 coins
+                const myEarning = 0.01;  // ממוצע מה שטלגרם משלמים לי על צפייה
+                const playerGets = myEarning / 0.5;
+                const coinsToGive = Math.round(playerGets * 10000); // 0.01$ ≈ 100 coins
 
                 coins += coinsToGive;
                 earnedUSD += playerGets;
@@ -79,7 +79,7 @@
 
         function invite() {
             Telegram.WebApp.openLink("https://t.me/rik_egg_bot?start=ref" + userId);
-            coins += 50;
+            coins += 5000;
             localStorage.setItem('rikCoins', coins);
             updateCounter();
         }
