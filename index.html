@@ -16,56 +16,51 @@
             border:5px solid #fff;box-shadow:0 0 40px #f00;border-radius:50px;
             z-index:999;cursor:pointer
         }
-        #adButton.ready{background:#00ff00;box-shadow:0 0 40px #0f0}
     </style>
 </head>
 <body>
     <div id="counter">0 Coins</div>
-    <img id="egg" src="egg png" onclick="clickEgg()">
-
+    <img id="egg" src="egg.png" onclick="clickEgg()">
     <button onclick="invite()">Invite Friend</button>
 
-    <!-- כפתור פרסומת – מופיע אחרי 40 קליקים -->
-    <button id="adButton" onclick="showRealTelegramAd()">
-        WATCH AD → GET 500 COINS!
-    </button>
+    <!-- כפתור פרסומת – תמיד זמין, עולה 40 מטבעות -->
+    <button id="adButton" onclick="watchAd()">WATCH AD → +500 Coins (-40)</button>
 
     <script>
-        let coins = Number(localStorage.getItem('rikCoins') || 0);
-        let clicks = Number(localStorage.getItem('rikClicks') || 0);
+        let coins = Number(localStorage.getItem('rikCoins') || 1000);
 
         updateCounter();
 
         function clickEgg() {
-            clicks++;
             coins += 1;
-            localStorage.setItem('rikClicks', clicks);
             localStorage.setItem('rikCoins', coins);
             updateCounter();
-
-            if (clicks % 40 === 0) {
-                document.getElementById('adButton').style.display = 'block';
-            }
 
             const e = document.getElementById('egg');
             e.style.transform = 'scale(0.9)';
             setTimeout(() => e.style.transform = '', 100);
         }
 
-        // פרסומת אמיתית של טלגרם – אתה מרוויח כסף אמיתי ב-TON
-        function showRealTelegramAd() {
+        // פרסומת אמיתית של טלגרם – עולה 40 מטבעות, נותן +500
+        function watchAd() {
+            if (coins < 40) {
+                alert("Need at least 40 Coins to watch ad!");
+                return;
+            }
+
             Telegram.WebApp.showPopup({
                 title: "Advertisement",
-                message: "Watch 30-second ad and get 500 coins!",
+                message: "Watch 30-second ad and get +500 Coins!",
                 buttons: [{ type: "ok", text: "Watch Now" }]
             }, () => {
+                // מוריד 40 מטבעות
+                coins -= 40;
+                // נותן +500 מטבעות
                 coins += 500;
                 localStorage.setItem('rikCoins', coins);
                 updateCounter();
-                alert("Ad watched! +500 Coins added\nYou earned me real money 💰");
-                document.getElementById('adButton').style.display = 'none';
-                clicks = 0;
-                localStorage.setItem('rikClicks', clicks);
+
+                alert("Ad watched! +500 Coins added!\nYou earned me real TON 💰");
             });
         }
 
