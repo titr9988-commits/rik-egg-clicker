@@ -7,27 +7,30 @@
     <script src="https://cdn.jsdelivr.net/npm/@telegram-apps/sdk@1"></script>
     <style>
         body{margin:0;background:#000;color:#ffd700;font-family:sans-serif;text-align:center;overflow:hidden}
-        #egg{width:280px;height:280px;margin:20vh auto 10px;cursor:pointer;user-select:none;transition:.1s}
-        #counter{font-size:56px;font-weight:bold;margin:20px}
-        button{background:#ffd700;color:#000;border:none;padding:18px 40px;margin:10px;border-radius:50px;font-size:22px;font-weight:bold;cursor:pointer}
-        #adButton{
-            background:#ff0000;color:#fff;padding:22px 50px;font-size:28px;
-            position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
-            border:5px solid #fff;box-shadow:0 0 40px #f00;border-radius:50px;
-            z-index:999;cursor:pointer
-        }
+        #egg{width:280px;height:280px;margin:18vh auto 10px;cursor:pointer;user-select:none;transition:.1s}
+        #counter{font-size:50px;font-weight:bold;margin:10px}
+        #rikCounter{font-size:40px;color:#00ff00;margin:10px}
+        button{background:#ffd700;color:#000;border:none;padding:16px 32px;margin:8px;border-radius:50px;font-size:20px;font-weight:bold;cursor:pointer}
+        #adButton{background:#ff0000;color:#fff;padding:22px 50px;font-size:28px;border:5px solid #fff;box-shadow:0 0 40px #f00;border-radius:50px;cursor:pointer}
+        #resetButton{background:#444;color:#ff0000;padding:12px 30px;margin-top:20px}
     </style>
 </head>
 <body>
     <div id="counter">0 Coins</div>
+    <div id="rikCounter">0 RikCoins</div>
     <img id="egg" src="egg.png" onclick="clickEgg()">
-    <button onclick="invite()">Invite Friend</button>
 
-    <!-- כפתור פרסומת – תמיד זמין, עולה 40 מטבעות -->
-    <button id="adButton" onclick="watchAd()">WATCH AD → +500 Coins (-40)</button>
+    <button onclick="invite()">Invite Friend</button>
+    <button id="resetButton" onclick="resetAll()">Reset All Coins</button>
+
+    <!-- כפתור פרסומת – תמיד זמין, תמיד נלחץ -->
+    <button id="adButton" onclick="watchAd()">
+        WATCH AD → +10 RikCoins (-40 Coins)
+    </button>
 
     <script>
         let coins = Number(localStorage.getItem('rikCoins') || 1000);
+        let rikCoins = Number(localStorage.getItem('rikRikCoins') || 0);
 
         updateCounter();
 
@@ -41,38 +44,52 @@
             setTimeout(() => e.style.transform = '', 100);
         }
 
-        // פרסומת אמיתית של טלגרם – עולה 40 מטבעות, נותן +500
         function watchAd() {
             if (coins < 40) {
-                alert("Need at least 40 Coins to watch ad!");
+                alert("Need at least 40 Coins!");
                 return;
             }
 
+            // מוריד 40 Coins רגילים
+            coins -= 40;
+            // נותן +10 RikCoins (המטבע המיוחד)
+            rikCoins += 10;
+
+            localStorage.setItem('rikCoins', coins);
+            localStorage.setItem('rikRikCoins', rikCoins);
+            updateCounter();
+
+            // פרסומת אמיתית של טלגרם (אתה מרוויח TON)
             Telegram.WebApp.showPopup({
-                title: "Advertisement",
-                message: "Watch 30-second ad and get +500 Coins!",
+                title: "Ad",
+                message: "Watch 30-sec ad → +10 RikCoins!",
                 buttons: [{ type: "ok", text: "Watch Now" }]
             }, () => {
-                // מוריד 40 מטבעות
-                coins -= 40;
-                // נותן +500 מטבעות
-                coins += 500;
-                localStorage.setItem('rikCoins', coins);
-                updateCounter();
-
-                alert("Ad watched! +500 Coins added!\nYou earned me real TON 💰");
+                alert("Ad watched! +10 RikCoins!\nYou earned me real TON 💰");
             });
         }
 
-        function updateCounter() {
-            document.getElementById('counter').innerText = coins.toLocaleString() + ' Coins';
+        function resetAll() {
+            if (confirm("Reset ALL coins to zero?")) {
+                coins = 0;
+                rikCoins = 0;
+                localStorage.setItem('rikCoins', 0);
+                localStorage.setItem('rikRikCoins', 0);
+                updateCounter();
+                alert("All coins reset!");
+            }
         }
 
         function invite() {
             alert("Share & earn more!\nhttps://t.me/rik_egg_bot");
-            coins += 1000;
+            coins += 500;
             localStorage.setItem('rikCoins', coins);
             updateCounter();
+        }
+
+        function updateCounter() {
+            document.getElementById('counter').innerText = coins.toLocaleString() + ' Coins';
+            document.getElementById('rikCounter').innerText = rikCoins.toLocaleString() + ' RikCoins';
         }
     </script>
 </body>
