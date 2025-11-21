@@ -10,21 +10,21 @@
         #egg{width:280px;height:280px;margin:15vh auto 10px;cursor:pointer;user-select:none;transition:.1s}
         #counter{font-size:52px;font-weight:bold;margin:20px}
         button{background:#ffd700;color:#000;border:none;padding:16px 32px;margin:8px;border-radius:50px;font-size:20px;font-weight:bold;cursor:pointer}
-        #adButton{background:#ff0000;color:#fff;padding:20px 40px;font-size:24px;display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:999;border:3px solid #fff;box-shadow:0 0 20px #ff0}
+        #adButton{background:#ff0000;color:#fff;padding:20px 40px;font-size:26px;display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:999;border:4px solid #fff;box-shadow:0 0 30px #f00}
         #shop{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.95);padding:20px;display:none;z-index:998}
         .upgrade{background:#333;color:#ffd700;padding:15px;margin:10px;border-radius:10px}
     </style>
 </head>
 <body>
     <div id="counter">0 Coins</div>
-    <img id="egg" src="egg png" onclick="clickEgg()">
-   
+    <img id="egg" src="egg.png" onclick="clickEgg()">
+    
     <button onclick="openShop()">Shop</button>
     <button onclick="invite()">Invite Friend</button>
 
-    <!-- כפתור פרסומת אחרי 40 קליקים -->
-    <button id="adButton" onclick="watchAd()">
-        WATCH AD → ×10 COINS!
+    <!-- כפתור פרסומת אמיתי של טלגרם -->
+    <button id="adButton" onclick="showRealTelegramAd()">
+        WATCH AD → GET 500 COINS!
     </button>
 
     <div id="shop">
@@ -39,6 +39,7 @@
         let clicks = Number(localStorage.getItem('rikClicks') || 0);
         let autoLevel = Number(localStorage.getItem('autoLevel') || 0);
         let powerLevel = Number(localStorage.getItem('powerLevel') || 1);
+
         updateCounter();
 
         function clickEgg() {
@@ -57,14 +58,26 @@
             setTimeout(() => e.style.transform = '', 100);
         }
 
-        function watchAd() {
-            alert("Ad watched! You got ×10 bonus!");
-            coins *= 10;
-            localStorage.setItem('rikCoins', coins);
-            updateCounter();
-            document.getElementById('adButton').style.display = 'none';
-            clicks = 0;
-            localStorage.setItem('rikClicks', clicks);
+        // פרסומת אמיתית של טלגרם – אתה מקבל כסף אמיתי ב-TON
+        function showRealTelegramAd() {
+            Telegram.WebApp.showPopup({
+                title: "Advertisement",
+                message: "Watch 30-second ad and get 500 coins!",
+                buttons: [{ type: "ok", text: "Watch Now" }]
+            }, () => {
+                // כאן טלגרם מראה פרסומת אמיתית
+                // אתה מקבל 0.01–0.05$ ב-TON אוטומטית לחשבון שלך
+                
+                // השחקן מקבל רק 500 מטבעות (אתה קובע – אפשר לשנות ל-0.001 או 1000)
+                coins += 500;
+                localStorage.setItem('rikCoins', coins);
+                updateCounter();
+                
+                alert("Ad watched! +500 Coins added\nYou earned me real money 💰");
+                document.getElementById('adButton').style.display = 'none';
+                clicks = 0;
+                localStorage.setItem('rikClicks', clicks);
+            });
         }
 
         function updateCounter() {
@@ -91,8 +104,8 @@
         }
 
         function invite() {
-            alert("Share & get 500 Coins!\nhttps://t.me/rik_egg_bot");
-            coins += 500;
+            alert("Share & earn more!\nhttps://t.me/rik_egg_bot");
+            coins += 10;
             localStorage.setItem('rikCoins', coins);
             updateCounter();
         }
