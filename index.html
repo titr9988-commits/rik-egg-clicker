@@ -7,50 +7,37 @@
     <script src="https://cdn.jsdelivr.net/npm/@telegram-apps/sdk@1"></script>
     <style>
         body{margin:0;background:#000;color:#ffd700;font-family:sans-serif;text-align:center;overflow:hidden}
-        #egg{width:280px;height:280px;margin:15vh auto 10px;cursor:pointer;user-select:none;transition:.1s}
-        #counter{font-size:52px;font-weight:bold;margin:20px}
+        #egg{width:280px;height:280px;margin:18vh auto 10px;cursor:pointer;user-select:none;transition:.1s}
+        #counter{font-size:50px;font-weight:bold;margin:10px}
+        #rikCounter{font-size:40px;color:#00ff00;margin:10px}
         button{background:#ffd700;color:#000;border:none;padding:16px 32px;margin:8px;border-radius:50px;font-size:20px;font-weight:bold;cursor:pointer}
-        #adButton{background:#ff0000;color:#fff;padding:20px 40px;font-size:24px;display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:999;border:3px solid #fff;box-shadow:0 0 20px #ff0}
-        #shop{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.95);padding:20px;display:none;z-index:998}
-        .upgrade{background:#333;color:#ffd700;padding:15px;margin:10px;border-radius:10px}
+        #adButton{background:#ff0000;color:#fff;padding:22px 50px;font-size:28px;border:5px solid #fff;box-shadow:0 0 40px #f00;border-radius:50px;cursor:pointer}
+        #resetButton{background:#444;color:#ff0000;padding:12px 30px;margin-top:20px}
     </style>
 </head>
 <body>
     <div id="counter">0 Coins</div>
+    <div id="rikCounter">0 RikCoins</div>
     <img id="egg" src="egg png" onclick="clickEgg()">
-   
-    <button onclick="openShop()">Shop</button>
-    <button onclick="invite()">Invite Friend</button>
 
-    <!-- כפתור פרסומת אחרי 40 קליקים -->
+    <button onclick="invite()">Invite Friend</button>
+    <button id="resetButton" onclick="resetAll()">Reset All Coins</button>
+
+    <!-- כפתור פרסומת – תמיד זמין, תמיד נלחץ -->
     <button id="adButton" onclick="watchAd()">
-        WATCH AD → ×10 COINS!
+        WATCH AD → +10 RikCoins (-40 Coins)
     </button>
 
-    <div id="shop">
-        <h2>UPGRADES</h2>
-        <div class="upgrade">Auto Clicker – Cost <span id="autoCost">50</span> Coins<br>Level <span id="autoLvl">0</span><button onclick="buyAuto()">Buy</button></div>
-        <div class="upgrade">Click Power ×2 – Cost <span id="powerCost">100</span> Coins<br>Level <span id="powerLvl">1</span><button onclick="buyPower()">Buy</button></div>
-        <button onclick="closeShop()" style="background:#ff4444">Close</button>
-    </div>
-
     <script>
-        let coins = Number(localStorage.getItem('rikCoins') || 0);
-        let clicks = Number(localStorage.getItem('rikClicks') || 0);
-        let autoLevel = Number(localStorage.getItem('autoLevel') || 0);
-        let powerLevel = Number(localStorage.getItem('powerLevel') || 1);
+        let coins = Number(localStorage.getItem('rikCoins') || 1000);
+        let rikCoins = Number(localStorage.getItem('rikRikCoins') || 0);
+
         updateCounter();
 
         function clickEgg() {
-            clicks++;
-            coins += powerLevel;
-            localStorage.setItem('rikClicks', clicks);
+            coins += 1;
             localStorage.setItem('rikCoins', coins);
             updateCounter();
-
-            if (clicks % 40 === 0) {
-                document.getElementById('adButton').style.display = 'block';
-            }
 
             const e = document.getElementById('egg');
             e.style.transform = 'scale(0.9)';
@@ -58,57 +45,52 @@
         }
 
         function watchAd() {
-            alert("Ad watched! You got ×10 bonus!");
-            coins *= 10;
+            if (coins < 40) {
+                alert("Need at least 40 Coins!");
+                return;
+            }
+
+            // מוריד 40 Coins רגילים
+            coins -= 40;
+            // נותן +10 RikCoins (המטבע המיוחד)
+            rikCoins += 10;
+
             localStorage.setItem('rikCoins', coins);
+            localStorage.setItem('rikRikCoins', rikCoins);
             updateCounter();
-            document.getElementById('adButton').style.display = 'none';
-            clicks = 0;
-            localStorage.setItem('rikClicks', clicks);
+
+            // פרסומת אמיתית של טלגרם (אתה מרוויח TON)
+            Telegram.WebApp.showPopup({
+                title: "Ad",
+                message: "Watch 30-sec ad → +10 RikCoins!",
+                buttons: [{ type: "ok", text: "Watch Now" }]
+            }, () => {
+                alert("Ad watched! +10 RikCoins!\nYou earned me real TON 💰");
+            });
         }
 
-        function updateCounter() {
-            document.getElementById('counter').innerText = coins.toLocaleString() + ' Coins';
-            document.getElementById('autoLvl').innerText = autoLevel;
-            document.getElementById('powerLvl').innerText = powerLevel;
-            document.getElementById('autoCost').innerText = 50 * (autoLevel + 1);
-            document.getElementById('powerCost').innerText = 100 * powerLevel;
-        }
-
-        function openShop() { document.getElementById('shop').style.display = 'block'; }
-        function closeShop() { document.getElementById('shop').style.display = 'none'; }
-
-        function buyAuto() {
-            let cost = 50 * (autoLevel + 1);
-            if (coins >= cost) { coins -= cost; autoLevel++; localStorage.setItem('rikCoins', coins); localStorage.setItem('autoLevel', autoLevel); updateCounter(); startAuto(); }
-            else alert("Not enough Coins!");
-        }
-
-        function buyPower() {
-            let cost = 100 * powerLevel;
-            if (coins >= cost) { coins -= cost; powerLevel *= 2; localStorage.setItem('rikCoins', coins); localStorage.setItem('powerLevel', powerLevel); updateCounter(); }
-            else alert("Not enough Coins!");
+        function resetAll() {
+            if (confirm("Reset ALL coins to zero?")) {
+                coins = 0;
+                rikCoins = 0;
+                localStorage.setItem('rikCoins', 0);
+                localStorage.setItem('rikRikCoins', 0);
+                updateCounter();
+                alert("All coins reset!");
+            }
         }
 
         function invite() {
-            alert("Share & get 500 Coins!\nhttps://t.me/rik_egg_bot");
+            alert("Share & earn more!\nhttps://t.me/rik_egg_bot");
             coins += 500;
             localStorage.setItem('rikCoins', coins);
             updateCounter();
         }
 
-        function startAuto() {
-            clearInterval(window.autoInt);
-            if (autoLevel > 0) {
-                window.autoInt = setInterval(() => {
-                    coins += autoLevel * 5;
-                    localStorage.setItem('rikCoins', coins);
-                    updateCounter();
-                }, 1000);
-            }
+        function updateCounter() {
+            document.getElementById('counter').innerText = coins.toLocaleString() + ' Coins';
+            document.getElementById('rikCounter').innerText = rikCoins.toLocaleString() + ' RikCoins';
         }
-
-        if (autoLevel > 0) startAuto();
     </script>
 </body>
 </html>
