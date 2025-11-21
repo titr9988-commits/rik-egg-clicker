@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIK EGG</title>
+    <script src="https://cdn.jsdelivr.net/npm/@telegram-apps/sdk@1"></script>
+    <style>
+        body {margin:0;background:#000;color:#ffd700;font-family:sans-serif;text-align:center;overflow:hidden}
+        #egg {width:280px;height:280px;margin:20vh auto 10px;cursor:pointer;user-select:none;transition:.1s}
+        #counter {font-size:52px;font-weight:bold;margin:20px}
+        button {background:#ffd700;color:#000;border:none;padding:16px 32px;margin:10px;border-radius:50px;font-size:20px;font-weight:bold}
+    </style>
+</head>
+<body>
+    <div id="counter">0 Egg</div>
+    <img id="egg" src="https://i.ibb.co/Krj7Z3s/golden-egg.png" onclick="clickEgg()">
+    <br>
+    <button onclick="alert('Shop coming soon!')">Shop</button>
+    <button onclick="alert('Invite friends & get bonus!')">Invite Friend</button>
+
+    <script>
+        let coins = Number(localStorage.getItem('rikEggCoins') || 0);
+        document.getElementById('counter').innerText = coins.toLocaleString() + ' Egg';
+
+        function clickEgg() {
+            coins++;
+            localStorage.setItem('rikEggCoins', coins);
+            document.getElementById('counter').innerText = coins.toLocaleString() + ' Egg';
+            const e = document.getElementById('egg');
+            e.style.transform = 'scale(0.9)';
+            setTimeout(()=> e.style.transform = '', 100);
+        }
+    </script>
+</body>
+</html>
