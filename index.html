@@ -5,26 +5,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RIK EGG</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <style>
-        body{margin:0;background:#000;color:#ffd700;font-family:sans-serif;text-align:center;overflow:hidden}
-        #egg{width:280px;height:280px;margin:15vh auto;cursor:pointer;transition:.1s}
-        #coins{font-size:52px;font-weight:bold;margin:20px}
-        #rik{font-size:44px;color:#00ff00;margin:10px}
-        button{background:#ffd700;color:#000;padding:16px 36px;margin:8px;border-radius:50px;font-size:22px;font-weight:bold;cursor:pointer}
-        #ad{background:#ff0000;color:#fff;padding:25px 80px;font-size:36px;border:6px solid #fff;box-shadow:0 0 50px #f00;border-radius:50px;cursor:pointer}
-        #reset{background:#333;color:#ff0000;padding:16px 40px;font-size:22px;border-radius:50px;cursor:pointer}
-        #withdraw{background:#00ff00;color:#000;padding:18px 50px;font-size:28px;margin:20px;border-radius:50px;display:none;cursor:pointer}
+        body{
+            margin:0;
+            background:#000;
+            color:#ffd700;
+            font-family:sans-serif;
+            text-align:center;
+        }
+
+        #egg{
+            width:280px;
+            height:280px;
+            margin:15vh auto;
+            cursor:pointer;
+            transition:.1s;
+        }
+
+        #coins{
+            font-size:52px;
+            font-weight:bold;
+            margin:20px;
+        }
+
+        #rik{
+            font-size:44px;
+            color:#00ff00;
+            margin:10px;
+        }
+
+        button{
+            background:#ffd700;
+            color:#000;
+            padding:16px 36px;
+            margin:8px;
+            border-radius:50px;
+            font-size:22px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        #ad{
+            background:#ff0000;
+            color:#fff;
+            padding:25px 80px;
+            font-size:36px;
+            border:6px solid #fff;
+            box-shadow:0 0 50px #f00;
+            border-radius:50px;
+            cursor:pointer;
+        }
+
+        #reset{
+            background:#333;
+            color:#ff0000;
+            padding:16px 40px;
+            font-size:22px;
+            border-radius:50px;
+            cursor:pointer;
+        }
+
+        #withdraw{
+            background:#00ff00;
+            color:#000;
+            padding:18px 50px;
+            font-size:28px;
+            margin:20px;
+            border-radius:50px;
+            display:none;
+            cursor:pointer;
+        }
+
+        /* 🔥 התאמה למסכים קטנים */
+        @media (max-height: 650px), (max-width: 400px) {
+            #egg{
+                width:180px;
+                height:180px;
+                margin:6vh auto;
+            }
+
+            #coins{
+                font-size:32px;
+                margin:10px;
+            }
+
+            #rik{
+                font-size:28px;
+                margin:8px;
+            }
+
+            button{
+                font-size:16px;
+                padding:10px 20px;
+                margin:5px;
+            }
+
+            #ad{
+                font-size:22px;
+                padding:15px 30px;
+                border-width:4px;
+                box-shadow:0 0 20px #f00;
+            }
+
+            #withdraw{
+                font-size:20px;
+                padding:12px 30px;
+                margin:10px;
+            }
+        }
     </style>
 </head>
 <body>
+
     <div id="coins">0 Coins</div>
     <div id="rik">0 RikCoins</div>
+
     <img id="egg" src="https://github.com/user-attachments/assets/c9219822-2ee1-4120-b338-b491dc265dac" onclick="tap()">
+
     <br>
+
     <button onclick="invite()">Invite Friend</button>
     <button id="reset" onclick="resetAll()">RESET ALL</button>
     <button id="withdraw" onclick="withdraw()">WITHDRAW $</button>
-
     <button id="ad" onclick="showAd()">WATCH AD TO GET $</button>
 
     <script>
@@ -46,12 +149,13 @@
             coins++;
             localStorage.setItem('c', coins);
             update();
+
             const e = document.getElementById('egg');
             e.style.transform = 'scale(0.9)';
             setTimeout(() => e.style.transform = '', 100);
         }
 
-        // פרסומת – עובדת תמיד
+        // פרסומת
         function showAd() {
             Telegram.WebApp.showPopup({
                 message: "Watching ad…",
@@ -89,5 +193,6 @@
             update();
         }
     </script>
+
 </body>
 </html>
